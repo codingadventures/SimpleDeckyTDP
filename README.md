@@ -1,6 +1,6 @@
 # SimpleDeckyTDP
 
-[![](https://img.shields.io/github/downloads/aarron-lee/SimpleDeckyTDP/total.svg)](https://github.com/aarron-lee/SimpleDeckyTDP/releases)
+[![](https://img.shields.io/github/downloads/codingadventures/SimpleDeckyTDP/total.svg)](https://github.com/codingadventures/SimpleDeckyTDP/releases)
 
 This is a Linux TDP Decky Plugin with support for AMD and experimental Intel support
 
