@@ -65,7 +65,7 @@ def set_power_governor_for_tdp_profile(tdp_profile):
       set_epp_for_tdp_profile(tdp_profile)
 
 def set_epp_for_tdp_profile(tdp_profile):
-  default_epp = power_utils.RECOMMENDED_DEFAULTS.get(SCALING_DRIVER).get('epp')
+  default_epp = power_utils.RECOMMENDED_DEFAULTS.get(SCALING_DRIVER, {}).get('epp')
   power_controls = tdp_profile.get('powerControls', {}).get(SCALING_DRIVER, {})
 
   epp = power_controls.get('epp', default_epp)

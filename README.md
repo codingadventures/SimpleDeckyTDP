@@ -4,6 +4,16 @@
 
 This is a Linux TDP Decky Plugin with support for AMD and experimental Intel support
 
+> ## About this fork
+>
+> This is a fork of [aarron-lee/SimpleDeckyTDP](https://github.com/aarron-lee/SimpleDeckyTDP) that adds **Lenovo Legion Go 2 (Ryzen Z2 Extreme)** support. Changes on top of upstream:
+>
+> - **Legion Go 2 detection** (DMI `product_name` `83N0` / `83N1`), which routes the device onto Lenovo's secure-boot-safe WMI TDP path instead of falling back to `ryzenadj`. This also enables the `Lenovo Custom TDP Mode` toggle and the WMI-ready wait on resume for the Go 2.
+> - **A read-only compatibility checker** (`scripts/check-legion-go-2.sh`) so you can confirm your Go 2 is ready before relying on the plugin - see [Legion Go 2 troubleshooting](#legion-go-2-ryzen-z2-extreme).
+> - **A robustness fix** for EPP handling on unknown CPU scaling drivers.
+>
+> The Legion Go 2 WMI path requires a recent kernel (~6.16+) that ships the `lenovo-wmi-other` and `lenovo-wmi-gamezone` drivers (Bazzite recommended).
+
 - [Features](#features)
 - [Compatibility](#compatibility)
 - [Requirements](#requirements)
@@ -236,6 +246,29 @@ The Legion Go requires using Lenovo's built-in WMI methods for device stability.
 This use the Legion Go driver that adds TDP controls in the kernel.
 
 This should also work for the Legion Go S.
+
+#### Legion Go 2 (Ryzen Z2 Extreme)
+
+The Legion Go 2 uses the same Lenovo WMI TDP path, which requires a recent kernel (~6.16+) that ships the `lenovo-wmi-other` and `lenovo-wmi-gamezone` drivers (Bazzite is recommended).
+
+To check whether your device is compatible before relying on the plugin, run the read-only checker from a terminal (e.g. Konsole in desktop mode). You can download and run it directly with a single command:
+
+```bash
+curl -L https://github.com/codingadventures/SimpleDeckyTDP/raw/main/scripts/check-legion-go-2.sh | bash
+```
+
+Or, if you have the repo cloned:
+
+```bash
+bash scripts/check-legion-go-2.sh
+```
+
+To additionally confirm that TDP writes actually take effect (performs a single safe write and restores the original value), download it first and run with `sudo`:
+
+```bash
+curl -LO https://github.com/codingadventures/SimpleDeckyTDP/raw/main/scripts/check-legion-go-2.sh
+sudo bash check-legion-go-2.sh --write-test
+```
 
 ### Ryzenadj troubleshooting
 

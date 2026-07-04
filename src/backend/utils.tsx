@@ -5,6 +5,8 @@ export enum Devices {
   LEGION_GO = "83E1",
   LEGION_GO_S_Z2_GO = "83L3",
   LEGION_GO_S_Z1_EXTREME = "83N6",
+  LEGION_GO_2 = "83N0",
+  LEGION_GO_2_ALT = "83N1",
   ROG_ALLY = "ROG Ally RC71",
   ROG_ALLY_X = "ROG Ally X RC72",
   MINISFORUM_V3 = "V3",
