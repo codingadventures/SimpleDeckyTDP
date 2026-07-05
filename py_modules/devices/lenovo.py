@@ -93,14 +93,26 @@ def set_platform_profile(profile: str) -> bool:
       decky_plugin.logger.error(f"{__name__} Platform profile path not found")
       return False
     set_profile_path = os.path.join(profile_base, "profile")
-    if os.path.exists(set_profile_path):
-      decky_plugin.logger.info(f'setting profile {profile} to path {set_profile_path}')
-      with open(set_profile_path, "w") as f:
-        f.write(profile)
-      return True
-    else:
+    if not os.path.exists(set_profile_path):
       decky_plugin.logger.error(f"{__name__} Profile path does not exist: {set_profile_path}")
       return False
+
+    # Skip redundant writes. The plugin re-applies TDP (and thus "custom") every
+    # poll, but the Lenovo WMI firmware can intermittently return EIO (Errno 5)
+    # when re-writing the profile value it is already set to. Only write on an
+    # actual change (mirrors the ROG Ally read-before-write pattern).
+    try:
+      with open(set_profile_path, "r") as f:
+        current_profile = f.read().strip()
+      if current_profile == profile:
+        return True
+    except Exception as e:
+      decky_plugin.logger.warning(f"{__name__} could not read current platform profile, writing anyway: {e}")
+
+    decky_plugin.logger.info(f'setting profile {profile} to path {set_profile_path}')
+    with open(set_profile_path, "w") as f:
+      f.write(profile)
+    return True
   except Exception as e:
     decky_plugin.logger.error(f"{__name__} Failed to set platform profile {profile}: {e}")
     return False

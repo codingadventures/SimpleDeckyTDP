@@ -40,12 +40,18 @@ def get_gpu_frequency_range():
 
       if od_sclk_matches:
         frequency_range = [int(od_sclk_matches[0][0]), int(od_sclk_matches[0][1])]
-        GPU_FREQUENCY_RANGE = frequency_range
+        # Only cache a sane range. Some devices (e.g. Legion Go 2 / Z2 Extreme)
+        # can transiently report a bogus range (e.g. min <= 0) before the GPU
+        # OverDrive table is ready. Caching that permanently wedges BALANCE mode
+        # into the manual-write path (pinning the GPU) and makes the fixed/range
+        # sliders show "Unsupported". Return it, but re-read on the next call.
+        if frequency_range[0] > 0 and frequency_range[1] > frequency_range[0]:
+          GPU_FREQUENCY_RANGE = frequency_range
         return frequency_range
       else:
-        frequency_range = [-2, -2]
-        GPU_FREQUENCY_RANGE = frequency_range
-        return frequency_range
+        # transient/unsupported read: return sentinel but do NOT cache it so we
+        # retry (and self-heal) on the next poll instead of staying broken.
+        return [-2, -2]
     except Exception as e:
       decky_plugin.logger.error(e)
 
