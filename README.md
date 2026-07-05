@@ -10,7 +10,10 @@ This is a Linux TDP Decky Plugin with support for AMD and experimental Intel sup
 >
 > - **Legion Go 2 detection** (DMI `product_name` `83N0` / `83N1`), which routes the device onto Lenovo's secure-boot-safe WMI TDP path instead of falling back to `ryzenadj`. This also enables the `Lenovo Custom TDP Mode` toggle and the WMI-ready wait on resume for the Go 2.
 > - **A read-only compatibility checker** (`scripts/check-legion-go-2.sh`) so you can confirm your Go 2 is ready before relying on the plugin - see [Legion Go 2 troubleshooting](#legion-go-2-ryzen-z2-extreme).
-> - **A robustness fix** for EPP handling on unknown CPU scaling drivers.
+> - **Robustness / bug fixes** (surfaced on the Go 2, but they live in the shared code):
+>   - GPU frequency range is no longer permanently cached when the first read is invalid. A transient bad read (min ≤ 0 before the GPU OverDrive table is ready) previously wedged BALANCE mode into the manual path — pinning the GPU at its minimum clock and making the Fixed/Range GPU sliders show "Unsupported". It now only caches a sane range and re-reads (self-heals) otherwise.
+>   - Redundant Lenovo `platform_profile` writes are skipped. The plugin re-wrote `custom` on every poll even when already set, which the Lenovo WMI firmware could intermittently reject with `EIO (Errno 5)`. It now reads the current value first and only writes on change (mirrors the existing ROG Ally behavior).
+>   - EPP handling is guarded on unknown CPU scaling drivers.
 >
 > The Legion Go 2 WMI path requires a recent kernel (~6.16+) that ships the `lenovo-wmi-other` and `lenovo-wmi-gamezone` drivers (Bazzite recommended).
 
