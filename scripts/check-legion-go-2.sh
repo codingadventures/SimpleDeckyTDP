@@ -223,8 +223,10 @@ LEVEL_PATH=$(ls /sys/class/drm/card*/device/power_dpm_force_performance_level 2>
 
 if [ -n "$OD_PATH" ]; then
   pass "Found pp_od_clk_voltage ($OD_PATH)"
-  if grep -q 'OD_RANGE:' "$OD_PATH" 2>/dev/null && grep -A3 'OD_RANGE:' "$OD_PATH" 2>/dev/null | grep -qi 'SCLK'; then
-    sclk_line=$(grep -i 'SCLK' "$OD_PATH" 2>/dev/null | grep -i 'Mhz' | tail -n1)
+  # sysfs pp_od_clk_voltage is null-padded; strip NULs so grep treats it as text
+  OD_CONTENT=$(tr -d '\0' < "$OD_PATH" 2>/dev/null)
+  if printf '%s\n' "$OD_CONTENT" | grep -q 'OD_RANGE:' && printf '%s\n' "$OD_CONTENT" | grep -qi 'SCLK'; then
+    sclk_line=$(printf '%s\n' "$OD_CONTENT" | grep -i 'SCLK' | grep -i 'Mhz' | tail -n1)
     pass "OD_RANGE SCLK present (plugin GPU-range parser will work)"
     [ -n "$sclk_line" ] && info "SCLK range: $(printf '%s' "$sclk_line" | sed 's/^[[:space:]]*//')"
   else
